@@ -1,0 +1,82 @@
+
+name: ML Model CI-CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  CI:
+    name: Continuous Integration
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run ML model
+        run: python model.py
+
+      - name: Run automated tests
+        run: pytest -v
+
+      - name: Save model accuracy
+        uses: actions/upload-artifact@v4
+        with:
+          name: model-accuracy
+          path: accuracy.txt
+
+  CD:
+    name: Continuous Deployment
+    needs: CI
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Download model accuracy
+        uses: actions/download-artifact@v4
+        with:
+          name: model-accuracy
+          path: accuracy-data
+
+      - name: Prepare deployment webpage
+        run: |
+          mkdir site
+          cp index.html site/index.html
+          python -c "from pathlib import Path; p=Path('site/index.html'); s=p.read_text(); a=Path('accuracy-data/accuracy.txt').read_text().strip(); p.write_text(s.replace('{{MODEL_ACCURACY}}', a).replace('{{CI_STATUS}}', 'PASSED - deployed after successful CI'))"
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload webpage
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
