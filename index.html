@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML CI/CD Assignment</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            text-align: center;
+            padding: 40px 15px;
+        }
+        .card {
+            background: white;
+            max-width: 600px;
+            margin: auto;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px #cccccc;
+        }
+        h1 { color: #1d4ed8; }
+        p { font-size: 18px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Machine Learning CI/CD Pipeline</h1>
+        <p><strong>Model:</strong> Logistic Regression</p>
+        <p><strong>Dataset:</strong> Iris Dataset (150 samples)</p>
+        <p><strong>Model Accuracy:</strong> {{MODEL_ACCURACY}}</p>
+        <p><strong>CI Status:</strong> {{CI_STATUS}}</p>
+        <p>Automated using GitHub Actions and GitHub Pages.</p>
+    </div>
+</body>
+</html>
